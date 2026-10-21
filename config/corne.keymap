@@ -163,7 +163,7 @@
 // -----------------------------------------------------------------------------------------
 // |  TAB |  F1 |  F2 |  F3 |  F4 |  F5 |   | VDN | VUP |  UP | SUN+| SUN-| DEL  |
 // | SHFT |  F6 |  F7 |  F8 |  F9 | F10 |   | PLAY| LFT | DWN | RGT | PRSC| BT1  |
-// | CTRL | F11 | F12 |     |     |     |   | HOME| PGUP| PGDN| END | BT0 | BT1  |
+// | CTRL | F11 | F12 | CAPS| INS | DEL |   | HOME| PGUP| PGDN| END | BT0 | BT1  |
 //                    | GUI |     | ALT |   | SPC |     |AltGr|
 // As tres teclas &bt vieram do dump do aparelho (2026-09-02): so' existiam na NVS,
 // gravadas pelo Studio, e por isso nunca estiveram neste arquivo. Repare que duas
@@ -172,7 +172,7 @@
                         bindings = <
    &kp TAB    &kp F1  &kp F2  &kp F3  &kp F4  &kp F5    &kp C_VOL_DN  &kp C_VOL_UP  &kp UP    &kp C_BRI_UP  &kp C_BRI_DN  &kp DEL
    &kp LSHFT  &kp F6  &kp F7  &kp F8  &kp F9  &kp F10   &kp C_PP      &kp LEFT      &kp DOWN  &kp RIGHT     &kp PRINTSCREEN &bt BT_SEL 1
-   &kp LCTRL  &kp F11 &kp F12 &trans  &trans  &trans    &kp HOME      &kp PG_UP     &kp PG_DN &kp END       &bt BT_SEL 0  &bt BT_SEL 1
+   &kp LCTRL  &kp F11 &kp F12 &kp CAPS &kp INS &kp DEL   &kp HOME      &kp PG_UP     &kp PG_DN &kp END       &bt BT_SEL 0  &bt BT_SEL 1
                               &kp LGUI &trans &kp LALT  &kp SPACE     &trans        &kp RALT
                         >;
                 };
@@ -181,13 +181,14 @@
 // -----------------------------------------------------------------------------------------
 // |  TAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  | BSPC |
 // | SHFT |  _  |  +  |  ?  |  :  |  ¨  |   |  -  |  =  |  [  |  ]  |  \  |  '   |
-// | CTRL |     |     |     |     |     |   |  /  |  ;  |  {  |  }  |  |  |  "   |
+// | CTRL |  ª  |  º  |  °  |  §  |  ²  |   |  /  |  ;  |  {  |  }  |  |  |  "   |
 //                    | GUI |     | ALT |   | SPC |     |AltGr|
 // ! @ # $ % & * ( ) saem no shift dos numeros, como num teclado normal.
+// ª º ° § ² levam AltGr (RA) embutido: no xkb br sao o 3o nivel de [ ] E = 2.
                         bindings = <
    &kp TAB    &kp N1        &kp N2        &kp N3       &kp N4       &kp N5      &kp N6     &kp N7     &kp N8        &kp N9        &kp N0                   &kp BSPC
    &kp LSHFT  &kp LS(MINUS) &kp LS(EQUAL) &kp LS(INT1) &kp LS(FSLH) &kp LS(N6)  &kp MINUS  &kp EQUAL  &kp RBKT      &kp BSLH      &kp NON_US_BACKSLASH     &kp GRAVE
-   &kp LCTRL  &trans        &trans        &trans       &trans       &trans      &kp INT1   &kp FSLH   &kp LS(RBKT)  &kp LS(BSLH)  &kp LS(NON_US_BACKSLASH) &kp LS(GRAVE)
+   &kp LCTRL  &kp RA(RBKT)  &kp RA(BSLH)  &kp RA(E)    &kp RA(EQUAL) &kp RA(N2) &kp INT1   &kp FSLH   &kp LS(RBKT)  &kp LS(BSLH)  &kp LS(NON_US_BACKSLASH) &kp LS(GRAVE)
                               &kp LGUI &trans &kp LALT  &kp SPACE  &trans     &kp RALT
                         >;
                 };

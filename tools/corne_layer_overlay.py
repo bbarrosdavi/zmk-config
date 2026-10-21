@@ -477,7 +477,7 @@ class StudioReader(threading.Thread):
         100:'\\', 135:'/',
         58:'F1',59:'F2',60:'F3',61:'F4',62:'F5',63:'F6',
         64:'F7',65:'F8',66:'F9',67:'F10',68:'F11',69:'F12',
-        70:'PrSc', 74:'Home',75:'PgUp',76:'⌦',77:'End',78:'PgDn',
+        57:'⇪', 70:'PrSc', 73:'Ins', 74:'Home',75:'PgUp',76:'⌦',77:'End',78:'PgDn',
         79:'→',80:'←',81:'↓',82:'↑',
         # 94-98 sao os digitos do teclado NUMERICO (HID 0x5E-0x62), nao bluetooth.
         # O rotulo antigo dizia BT0-BT4 e fez um dump do aparelho ser lido errado.
@@ -495,6 +495,11 @@ class StudioReader(threading.Thread):
     }
 
     # Shift implicito (LS/RS nos bits 24-31 do param) muda o simbolo no br.
+    # AltGr implicito (RA, bit 0x40) da' o 3o nivel do xkb br.
+    _KB_ALTGR = {
+        48:'ª',49:'º',8:'°',46:'§',30:'¹',31:'²',32:'³',33:'£',34:'¢',35:'¬',
+    }
+
     _KB_SHIFTED = {
         45:'_',46:'+',47:'`',48:'{',49:'}',51:'Ç',52:'^',53:'"',
         54:'<',55:'>',56:':',100:'|',135:'?',
@@ -507,6 +512,9 @@ class StudioReader(threading.Thread):
         mods  = (param >> 24) & 0xFF
         if page == 0: page = 7
         if page == 7:
+            if mods & 0x40:  # RALT implicito = AltGr no br
+                altgr = self._KB_ALTGR.get(usage)
+                if altgr: return altgr
             if mods & 0x22:  # LSFT ou RSFT implicitos
                 shifted = self._KB_SHIFTED.get(usage)
                 if shifted: return shifted
@@ -532,6 +540,8 @@ class StudioReader(threading.Thread):
         if 'sticky layer' in n or 'sticky key' in n:
             return f'sk/{self._hid_label(p1)}' if p1 else 'sk'
         if 'studio unlock' in n:    return '🔓'
+        if 'acento' in n:           return '´~^`'
+        if 'lwr_nav' in n:          return 'L1/L3'
         if 'lower' in n:            return 'L1'
         if 'raise' in n:            return 'L2'
         if 'rgb' in n or 'underglow' in n: return 'RGB'
@@ -663,7 +673,8 @@ KEY_LABELS = {
     "TAB": "⇥", "BSPC": "⌫", "RET": "⏎", "SPACE": "␣", "ESC": "⎋",
     "DEL": "⌦", "CAPS": "⇪", "ENTER": "⏎",
     "LCTRL": "Ctrl", "RCTRL": "Ctrl", "LSHFT": "⇧", "RSHFT": "⇧",
-    "LGUI": "Gui", "RGUI": "Gui", "LALT": "Alt", "RALT": "Alt",
+    "LGUI": "Gui", "RGUI": "Gui", "LALT": "Alt", "RALT": "AltGr",
+    "INS": "Ins", "INSERT": "Ins",
     # Legendas conforme o xkb "br" (ABNT2) do host, nao o layout US dos nomes ZMK.
     "SQT": "~^", "DQT": "^", "COMMA": ",", "DOT": ".", "FSLH": ";",
     "BSLH": "]", "SEMI": "Ç", "COLON": "Ç", "GRAVE": "'", "TILDE": '"',
@@ -722,12 +733,21 @@ BR_SHIFTED = {
 }
 
 
+# 3o nivel (AltGr) do xkb "br"; usado pelos bindings RA(...) da raise.
+BR_ALTGR = {
+    "RBKT": "ª", "BSLH": "º", "E": "°", "EQUAL": "§",
+    "N1": "¹", "N2": "²", "N3": "³", "N4": "£", "N5": "¢", "N6": "¬",
+}
+
+
 def _kp_label(code):
     m = re.fullmatch(r"([LR][ACGS])\((.+)\)", code)
     if m:
         mod, inner = m.group(1), m.group(2)
         if mod in ("LS", "RS") and inner in BR_SHIFTED:
             return BR_SHIFTED[inner]
+        if mod == "RA" and inner in BR_ALTGR:
+            return BR_ALTGR[inner]
         return _kp_label(inner)
     return KEY_LABELS.get(code, code)
 
@@ -740,6 +760,10 @@ def binding_label(tokens):
         return ""
     if beh in ("&none",):
         return "✗"
+    if beh in ("&td_acento", "td_acento"):
+        return "´~^`"
+    if beh in ("&td_lwr_nav", "td_lwr_nav"):
+        return "L1/L3"
     if beh in ("&lower_mo", "lower_mo"):
         return "L1"
     if beh in ("&raise_mo", "raise_mo"):
@@ -930,13 +954,23 @@ class CornePainter:
         cr.move_to(x, ty)
         PangoCairo.show_layout(cr, layout)
 
+    # Sinais que a fonte desenha pequenos e no alto (ª º ° ² acentos, pontuacao):
+    # no tamanho normal ª/º/° viram o mesmo pontinho. Saem maiores, em negrito,
+    # e centralizados pela tinta (ink extents), nao pela caixa da linha.
+    _SMALL_GLYPHS = set("ªº°¹²³¨´`~^'\".,:;-_=+")
+
     def _fit_text(self, cr, x, y, w, h, text):
         layout = PangoCairo.create_layout(cr)
-        layout.set_font_description(self.font_desc)
+        if text and all(c in self._SMALL_GLYPHS for c in text):
+            desc = self.bold_font_desc.copy()
+            desc.set_absolute_size(self.font * 1.7 * Pango.SCALE)
+        else:
+            desc = self.font_desc
+        layout.set_font_description(desc)
         layout.set_text(text, -1)
-        _, ext = layout.get_pixel_extents()
+        ink, _ = layout.get_pixel_extents()
         cr.set_source_rgba(0.95, 0.96, 0.98, 1.0)
-        cr.move_to(x + (w - ext.width) / 2, y + (h - ext.height) / 2)
+        cr.move_to(x + (w - ink.width) / 2 - ink.x, y + (h - ink.height) / 2 - ink.y)
         PangoCairo.show_layout(cr, layout)
 
 
