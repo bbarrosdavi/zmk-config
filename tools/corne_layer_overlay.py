@@ -804,14 +804,6 @@ def binding_label(tokens):
         return MOUSE_KEYS.get(args[0], args[0])
     if beh in ("&msc", "&msc_xy") and args:
         return MOUSE_KEYS.get(args[0], args[0])
-    if beh == "&msc_turbo" and args:
-        m = _MOVE_RE.fullmatch(args[0])
-        if m:
-            neg = int(m.group(2)) < 0
-            # Seta dupla = scroll turbo (8x); "8x" escrito nao cabe na tecla.
-            return {("X", True): "⇕⇇", ("X", False): "⇕⇉",
-                    ("Y", True): "⇕⇊", ("Y", False): "⇕⇈"}[(m.group(1), neg)]
-        return MOUSE_KEYS.get(args[0], args[0])
     if beh in ("&mmv_td_up", "&mmv_td_down", "&mmv_td_left", "&mmv_td_right", "mmv_td_up", "mmv_td_down", "mmv_td_left", "mmv_td_right"):
         return MOUSE_KEYS.get(beh.lstrip("&"), beh)
     label = beh.lstrip("&")
@@ -825,9 +817,9 @@ def parse_keymap(path):
         text = f.read()
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
     text = re.sub(r"//[^\n]*", "", text)
-    # Macros simples do keymap (#define SCROLL &msc): o parser separa bindings
+    # Macros simples do keymap (#define NOME &x): o parser separa bindings
     # pelo "&", entao o nome precisa virar o comportamento antes. Vale a
-    # primeira definicao, a do ramo padrao do #ifndef.
+    # primeira definicao.
     macros = {}
     for name, val in re.findall(r"^\s*#define\s+(\w+)\s+(&\w+)\s*$", text, flags=re.M):
         macros.setdefault(name, val)

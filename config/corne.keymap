@@ -39,30 +39,13 @@
     acceleration-exponent = <1>;
 };
 
-/* 2026-10-21: scroll com a mesma rampa do cursor, a pedido do Davi (antes era
- * instantaneo). */
-&msc {
-    time-to-max-speed-ms = <150>;
-    acceleration-exponent = <1>;
-};
-
-/* Turbo do scroll: segurar A (camada 4) multiplica a rolagem por 8 inclusive no
- * meio de uma rolagem ja' em curso, como o cursor. Duas montagens possiveis:
- *  - padrao: override de camada no proprio &msc_input_listener;
- *  - SCROLL_XY: o scroll sai de uma instancia de movimento (&msc_xy, eixos X/Y)
- *    convertida em roda pelo zip_xy_to_scroll_mapper, e o boost usa o mesmo
- *    zip_xy_scaler do cursor. Existe porque o override no &msc derrubou o boot da
- *    esquerda em 2026-10-21 (v0.3), sem causa encontrada no codigo. */
-#ifndef SCROLL_XY
-#define SCROLL &msc
-&msc_input_listener {
-    turbo {
-        layers = <4>;
-        input-processors = <&zip_scroll_scaler 8 1>;
-    };
-};
-#else
-#define SCROLL &msc_xy
+/* Scroll: sai de uma instancia de movimento (&msc_xy, eixos X/Y) convertida em
+ * roda pelo zip_xy_to_scroll_mapper. Rampa igual a' do cursor (2026-10-21, a
+ * pedido do Davi; antes era instantaneo). Segurar A (camada 4) multiplica por 8
+ * inclusive no meio de uma rolagem ja' em curso, com o mesmo zip_xy_scaler do
+ * cursor. O caminho direto (override de camada no &msc_input_listener com
+ * zip_scroll_scaler) derrubava o boot da esquerda na v0.3, mesmo com pilhas
+ * dobradas, sem causa encontrada no codigo: nao voltar a ele. */
 / {
         behaviors {
                 msc_xy: msc_xy {
@@ -85,7 +68,6 @@
                 };
         };
 };
-#endif
 
 
 /* Turbo acionado NO MEIO de um movimento ja' em curso: o binding em voo continua
@@ -246,7 +228,7 @@
                 // Teclas U/O = scroll suave com rampa de 150ms (&msc); turbo acelera 2.5x.
                 // Teclas GUI, Space, Ctrl, Alt e Enter disponíveis diretamente no modo mouse.
                                 bindings = <
-                &studio_unlock &none     &none    &none    &none    &none    SCROLL SCRL_LEFT SCROLL SCRL_DOWN &mmv MOVE_Y(-600) SCROLL SCRL_UP SCROLL SCRL_RIGHT &none
+                &studio_unlock &none     &none    &none    &none    &none    &msc_xy SCRL_LEFT &msc_xy SCRL_DOWN &mmv MOVE_Y(-600) &msc_xy SCRL_UP &msc_xy SCRL_RIGHT &none
                 &kp LSHFT      &turbo_mo &mkp MCLK &mkp RCLK &mkp LCLK &none    &none           &mmv MOVE_X(-600) &mmv MOVE_Y(600)  &mmv MOVE_X(600) &none           &kp C_PREV
                 &kp LCTRL      &none     &none    &none    &none    &none    &none           &none           &none             &rgb_ug RGB_TOG &none           &rgb_ug RGB_BRI
                                              &kp LGUI &none    &kp RET  &kp SPACE       &none           &kp RSHFT
@@ -266,7 +248,7 @@
                 // ENTAO mover da' velocidade cheia no primeiro tick, sem a inercia
                 // que a camada 3 tem. O scroll continua no &msc, ja' instantaneo.
                                 bindings = <
-                &studio_unlock &none     &none    &none    &none    &none    SCROLL SCRL_LEFT SCROLL SCRL_DOWN &mmv_turbo MOVE_Y(-600) SCROLL SCRL_UP SCROLL SCRL_RIGHT &none
+                &studio_unlock &none     &none    &none    &none    &none    &msc_xy SCRL_LEFT &msc_xy SCRL_DOWN &mmv_turbo MOVE_Y(-600) &msc_xy SCRL_UP &msc_xy SCRL_RIGHT &none
                 &kp LSHFT      &turbo_mo &mkp MCLK &mkp RCLK &mkp LCLK &none    &none           &mmv_turbo MOVE_X(-600) &mmv_turbo MOVE_Y(600) &mmv_turbo MOVE_X(600) &none &kp C_PREV
                 &kp LCTRL      &none     &none    &none    &none    &none    &none           &none           &none             &rgb_ug RGB_TOG &none           &rgb_ug RGB_BRI
                                              &kp LGUI &none    &kp RET  &kp SPACE       &none           &kp RSHFT
