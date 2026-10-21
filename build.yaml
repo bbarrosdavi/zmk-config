@@ -27,17 +27,6 @@ include:
     snippet: studio-rpc-usb-uart
   - board: nice_nano_v2
     shield: corne_right
-  # Teste temporario: isolar qual mudanca do scroll derruba o boot da esquerda.
-  - board: nice_nano_v2
-    shield: corne_left raw_hid_adapter
-    snippet: studio-rpc-usb-uart
-    cmake-args: -DDTS_EXTRA_CPPFLAGS=-DNO_SCROLL_TURBO
-    artifact-name: corne_left_so_rampa
-  - board: nice_nano_v2
-    shield: corne_left raw_hid_adapter
-    snippet: studio-rpc-usb-uart
-    cmake-args: -DDTS_EXTRA_CPPFLAGS=-DNO_SCROLL_RAMP
-    artifact-name: corne_left_so_turbo
   # Para depurar bateria/energia de novo, reponha temporariamente:
   #   - board: nice_nano_v2
   #     shield: corne_left raw_hid_adapter

@@ -804,6 +804,14 @@ def binding_label(tokens):
         return MOUSE_KEYS.get(args[0], args[0])
     if beh == "&msc" and args:
         return MOUSE_KEYS.get(args[0], args[0])
+    if beh == "&msc_turbo" and args:
+        m = _MOVE_RE.fullmatch(args[0])
+        if m:
+            neg = int(m.group(2)) < 0
+            # Seta dupla = scroll turbo (8x); "8x" escrito nao cabe na tecla.
+            return {("X", True): "⇕⇇", ("X", False): "⇕⇉",
+                    ("Y", True): "⇕⇊", ("Y", False): "⇕⇈"}[(m.group(1), neg)]
+        return MOUSE_KEYS.get(args[0], args[0])
     if beh in ("&mmv_td_up", "&mmv_td_down", "&mmv_td_left", "&mmv_td_right", "mmv_td_up", "mmv_td_down", "mmv_td_left", "mmv_td_right"):
         return MOUSE_KEYS.get(beh.lstrip("&"), beh)
     label = beh.lstrip("&")
