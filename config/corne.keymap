@@ -41,19 +41,23 @@
 
 /* 2026-10-21: scroll com a mesma rampa do cursor, a pedido do Davi (antes era
  * instantaneo). Com o scroll suave, o toque curto rola uma fracao de linha. */
+#ifndef NO_SCROLL_RAMP
 &msc {
     time-to-max-speed-ms = <150>;
     acceleration-exponent = <1>;
 };
+#endif
 
 /* Turbo (tecla A, camada 4) tambem acelera o scroll 2.5x, pelo mesmo caminho do
  * boost do cursor: input processor filtrado pela camada. */
+#ifndef NO_SCROLL_TURBO
 &msc_input_listener {
     turbo {
         layers = <4>;
         input-processors = <&zip_scroll_scaler 5 2>;
     };
 };
+#endif
 
 /* Turbo acionado NO MEIO de um movimento ja' em curso: o binding em voo continua
  * sendo o &mmv (o ZMK resolve o binding no press e a camada nao troca o que ja'
