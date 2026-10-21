@@ -88,15 +88,6 @@
                         tapping-term-ms = <200>;
                         bindings = <&lower_mo>, <&mo 3>;
                 };
-
-                // Tap-dance na tecla de acento (direita do ponto), todos teclas mortas
-                // do xkb br: 1 toque = ´  2 = ~  3 = ^  4 = `
-                td_acento: td_acento {
-                        compatible = "zmk,behavior-tap-dance";
-                        #binding-cells = <0>;
-                        tapping-term-ms = <200>;
-                        bindings = <&kp LBKT>, <&kp SQT>, <&kp LS(SQT)>, <&kp LS(LBKT)>;
-                };
         };
 
         macros {
@@ -147,33 +138,36 @@
 // -----------------------------------------------------------------------------------------
 // |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | BSPC |
 // | SHFT |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  Ç  | ~ ^  |
-// | CTRL |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |´~^` | ESC  |
-//                    | GUI | LWR | ENT |   | SPC | RSE  | ALT |
+// | CTRL |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  | ; : | ´ `  |
+//                    | GUI | LWR | ENT |   | SPC | RSE  | SHFT|
+// Acentos como no ABNT2: ~ (shift ^) ao lado do Ç e ´ (shift `) logo abaixo.
+// Esc mora na lower (Lower+Tab). Polegar direito e' Shift: AltGr saiu, os
+// simbolos de AltGr que importam estao prontos na raise (RA embutido).
 // Shift na home row e Ctrl embaixo: era assim que o aparelho estava (edicao antiga
 // no Studio, lida no dump de 2026-09-02) e e' o mesmo arranjo das outras camadas.
                         bindings = <
    &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
    &kp LSHFT &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
-   &kp LCTRL &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &td_acento &kp ESC
-                  &kp LGUI &td_lwr_nav &kp RET     &kp SPACE &raise_mo &kp RALT
+   &kp LCTRL &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp LBKT
+                  &kp LGUI &td_lwr_nav &kp RET     &kp SPACE &raise_mo &kp RSHFT
                         >;
                 };
 
                 lower_layer {
 // -----------------------------------------------------------------------------------------
-// |  TAB |  F1 |  F2 |  F3 |  F4 |  F5 |   | VDN | VUP |  UP | SUN+| SUN-| DEL  |
+// |  ESC |  F1 |  F2 |  F3 |  F4 |  F5 |   | VDN | VUP |  UP | SUN+| SUN-| DEL  |
 // | SHFT |  F6 |  F7 |  F8 |  F9 | F10 |   | PLAY| LFT | DWN | RGT | PRSC| BT1  |
 // | CTRL | F11 | F12 | CAPS| INS | DEL |   | HOME| PGUP| PGDN| END | BT0 | BT1  |
-//                    | GUI |     | ALT |   | SPC |     |AltGr|
+//                    | GUI |     | ALT |   | SPC |     | SHFT|
 // As tres teclas &bt vieram do dump do aparelho (2026-09-02): so' existiam na NVS,
 // gravadas pelo Studio, e por isso nunca estiveram neste arquivo. Repare que duas
 // delas selecionam o MESMO perfil (BT_SEL 1) -- preservado como estava; se foi
 // engano, o candidato natural para a de cima e' &bt BT_CLR ou outro perfil.
                         bindings = <
-   &kp TAB    &kp F1  &kp F2  &kp F3  &kp F4  &kp F5    &kp C_VOL_DN  &kp C_VOL_UP  &kp UP    &kp C_BRI_UP  &kp C_BRI_DN  &kp DEL
+   &kp ESC    &kp F1  &kp F2  &kp F3  &kp F4  &kp F5    &kp C_VOL_DN  &kp C_VOL_UP  &kp UP    &kp C_BRI_UP  &kp C_BRI_DN  &kp DEL
    &kp LSHFT  &kp F6  &kp F7  &kp F8  &kp F9  &kp F10   &kp C_PP      &kp LEFT      &kp DOWN  &kp RIGHT     &kp PRINTSCREEN &bt BT_SEL 1
    &kp LCTRL  &kp F11 &kp F12 &kp CAPS &kp INS &kp DEL   &kp HOME      &kp PG_UP     &kp PG_DN &kp END       &bt BT_SEL 0  &bt BT_SEL 1
-                              &kp LGUI &trans &kp LALT  &kp SPACE     &trans        &kp RALT
+                              &kp LGUI &trans &kp LALT  &kp SPACE     &trans        &kp RSHFT
                         >;
                 };
 
@@ -181,15 +175,15 @@
 // -----------------------------------------------------------------------------------------
 // |  TAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  | BSPC |
 // | SHFT |  _  |  +  |  ?  |  :  |  ¨  |   |  -  |  =  |  [  |  ]  |  \  |  '   |
-// | CTRL |  ª  |  º  |  °  |  §  |  ²  |   |  /  |  ;  |  {  |  }  |  |  |  "   |
-//                    | GUI |     | ALT |   | SPC |     |AltGr|
+// | CTRL |  ª  |  º  |  °  |  §  |  ²  |   |  /  |  ³  |  {  |  }  |  |  |  "   |
+//                    | GUI |     | ALT |   | SPC |     | SHFT|
 // ! @ # $ % & * ( ) saem no shift dos numeros, como num teclado normal.
-// ª º ° § ² levam AltGr (RA) embutido: no xkb br sao o 3o nivel de [ ] E = 2.
+// ª º ° § ² ³ levam AltGr (RA) embutido: no xkb br sao o 3o nivel de [ ] E = 2 3.
                         bindings = <
    &kp TAB    &kp N1        &kp N2        &kp N3       &kp N4       &kp N5      &kp N6     &kp N7     &kp N8        &kp N9        &kp N0                   &kp BSPC
    &kp LSHFT  &kp LS(MINUS) &kp LS(EQUAL) &kp LS(INT1) &kp LS(FSLH) &kp LS(N6)  &kp MINUS  &kp EQUAL  &kp RBKT      &kp BSLH      &kp NON_US_BACKSLASH     &kp GRAVE
-   &kp LCTRL  &kp RA(RBKT)  &kp RA(BSLH)  &kp RA(E)    &kp RA(EQUAL) &kp RA(N2) &kp INT1   &kp FSLH   &kp LS(RBKT)  &kp LS(BSLH)  &kp LS(NON_US_BACKSLASH) &kp LS(GRAVE)
-                              &kp LGUI &trans &kp LALT  &kp SPACE  &trans     &kp RALT
+   &kp LCTRL  &kp RA(RBKT)  &kp RA(BSLH)  &kp RA(E)    &kp RA(EQUAL) &kp RA(N2) &kp INT1   &kp RA(N3) &kp LS(RBKT)  &kp LS(BSLH)  &kp LS(NON_US_BACKSLASH) &kp LS(GRAVE)
+                              &kp LGUI &trans &kp LALT  &kp SPACE  &trans     &kp RSHFT
                         >;
                 };
 
@@ -200,7 +194,7 @@
                 // | CTRL | NONE| NONE| NONE| NONE| NONE|   | NONE| NONE| NONE| RGB | NONE| BRI  |
                 // Sem teclas &ext_power: CONFIG_ZMK_EXT_POWER=n (teste de 2026-09-02, as
                 // duas polaridades de P0.13 derrubam o VCC neste clone -- ver corne.conf).
-                //                    | GUI | NONE| ENT |   | SPC | NONE| ALT  |
+                //                    | GUI | NONE| ENT |   | SPC | NONE| SHFT |
                 //
                 // Ativação Lower: 1 toque/hold no polegar Lower = L1.
                 // Ativação Navegação: 2 toques e SEGURA no polegar Lower = L3 (momentâneo, libera ao soltar).
@@ -212,7 +206,7 @@
                 &studio_unlock &none     &none    &none    &none    &none    &msc SCRL_LEFT  &msc SCRL_DOWN  &mmv MOVE_Y(-600) &msc SCRL_UP    &msc SCRL_RIGHT &none
                 &kp LSHFT      &turbo_mo &mkp MCLK &mkp RCLK &mkp LCLK &none    &none           &mmv MOVE_X(-600) &mmv MOVE_Y(600)  &mmv MOVE_X(600) &none           &kp C_PREV
                 &kp LCTRL      &none     &none    &none    &none    &none    &none           &none           &none             &rgb_ug RGB_TOG &none           &rgb_ug RGB_BRI
-                                             &kp LGUI &none    &kp RET  &kp SPACE       &none           &kp RALT
+                                             &kp LGUI &none    &kp RET  &kp SPACE       &none           &kp RSHFT
                                 >;
                 };
 
@@ -224,7 +218,7 @@
                 // | CTRL | NONE| NONE| NONE| NONE| NONE|   | NONE| NONE| NONE| RGB | NONE| BRI  |
                 // Sem teclas &ext_power: CONFIG_ZMK_EXT_POWER=n (teste de 2026-09-02, as
                 // duas polaridades de P0.13 derrubam o VCC neste clone -- ver corne.conf).
-                //                    | GUI | NONE| ENT |   | SPC | NONE| ALT  |
+                //                    | GUI | NONE| ENT |   | SPC | NONE| SHFT |
                 // Movimento aqui usa &mmv_turbo (sem rampa): entrar no turbo e SO'
                 // ENTAO mover da' velocidade cheia no primeiro tick, sem a inercia
                 // que a camada 3 tem. O scroll continua no &msc, ja' instantaneo.
@@ -232,7 +226,7 @@
                 &studio_unlock &none     &none    &none    &none    &none    &msc SCRL_LEFT  &msc SCRL_DOWN  &mmv_turbo MOVE_Y(-600) &msc SCRL_UP &msc SCRL_RIGHT &none
                 &kp LSHFT      &turbo_mo &mkp MCLK &mkp RCLK &mkp LCLK &none    &none           &mmv_turbo MOVE_X(-600) &mmv_turbo MOVE_Y(600) &mmv_turbo MOVE_X(600) &none &kp C_PREV
                 &kp LCTRL      &none     &none    &none    &none    &none    &none           &none           &none             &rgb_ug RGB_TOG &none           &rgb_ug RGB_BRI
-                                             &kp LGUI &none    &kp RET  &kp SPACE       &none           &kp RALT
+                                             &kp LGUI &none    &kp RET  &kp SPACE       &none           &kp RSHFT
                                 >;
                 };
         };
