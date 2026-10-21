@@ -802,7 +802,7 @@ def binding_label(tokens):
             tier = _MOVE_TIERS.get(abs(speed))
             return arrow + (f" ({abs(speed)})" if tier is None else tier)
         return MOUSE_KEYS.get(args[0], args[0])
-    if beh == "&msc" and args:
+    if beh in ("&msc", "&msc_xy") and args:
         return MOUSE_KEYS.get(args[0], args[0])
     if beh == "&msc_turbo" and args:
         m = _MOVE_RE.fullmatch(args[0])
@@ -825,6 +825,15 @@ def parse_keymap(path):
         text = f.read()
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
     text = re.sub(r"//[^\n]*", "", text)
+    # Macros simples do keymap (#define SCROLL &msc): o parser separa bindings
+    # pelo "&", entao o nome precisa virar o comportamento antes. Vale a
+    # primeira definicao, a do ramo padrao do #ifndef.
+    macros = {}
+    for name, val in re.findall(r"^\s*#define\s+(\w+)\s+(&\w+)\s*$", text, flags=re.M):
+        macros.setdefault(name, val)
+    text = re.sub(r"^\s*#.*$", "", text, flags=re.M)
+    for name, val in macros.items():
+        text = re.sub(rf"\b{name}\b", val, text)
 
     m = _KEYMAP_BLOCK_RE.search(text)
     keymap_text = m.group(1) if m else text
